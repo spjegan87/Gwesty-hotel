@@ -185,19 +185,19 @@ export default function BookingConfirmation() {
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between">
                         <span>Room rate:</span>
-                        <span>${booking.roomRate}</span>
+                        <span>₹{Math.round(booking.roomRate * 83.5)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Tax:</span>
-                        <span>${booking.tax}</span>
+                        <span>₹{Math.round(booking.tax * 83.5)}</span>
                       </div>
                       <div className="flex justify-between text-green-600">
                         <span>Discount:</span>
-                        <span>- ${booking.discount}</span>
+                        <span>- ₹{Math.round(booking.discount * 83.5)}</span>
                       </div>
                       <div className="flex justify-between text-gray-500">
                         <span>Paid earlier:</span>
-                        <span>${booking.paidEarlier}</span>
+                        <span>₹{Math.round(booking.paidEarlier * 83.5)}</span>
                       </div>
                     </div>
                     
@@ -205,7 +205,7 @@ export default function BookingConfirmation() {
                     
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total:</span>
-                      <span>${booking.totalAmount}</span>
+                      <span>₹{Math.round(booking.totalAmount * 83.5)}</span>
                     </div>
                   </CardContent>
                 </Card>
