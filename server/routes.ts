@@ -141,14 +141,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enhancedBookings = await Promise.all(
         bookings.map(async (booking) => {
           const hotel = await storage.getHotelById(booking.hotelId);
+          // Type casting to avoid TypeScript errors
+          const hotelData = hotel as any;
           return {
             ...booking,
             hotel: {
-              id: hotel?.id,
-              name: hotel?.name,
-              image: hotel?.images[0],
-              location: hotel?.location,
-              rating: hotel?.rating
+              id: hotelData?.id,
+              name: hotelData?.name,
+              image: hotelData?.images && Array.isArray(hotelData.images) && hotelData.images.length > 0 ? hotelData.images[0] : "",
+              location: hotelData?.location,
+              rating: hotelData?.rating
             },
             originalPrice: Number(booking.roomRate) + Number(booking.tax),
             discountedPrice: Number(booking.totalAmount)
@@ -173,14 +175,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const hotel = await storage.getHotelById(booking.hotelId);
       
+      // Ensure we handle the hotel object properly with type checking
+      const hotelData = hotel as any; // Type casting to avoid TypeScript errors
+      
       // Enhance booking with hotel data
       const enhancedBooking = {
         ...booking,
         hotel: {
-          id: hotel?.id,
-          name: hotel?.name,
-          image: hotel?.images[0],
-          location: hotel?.location
+          id: hotelData?.id,
+          name: hotelData?.name,
+          image: hotelData?.images && Array.isArray(hotelData.images) && hotelData.images.length > 0 ? hotelData.images[0] : "",
+          location: hotelData?.location
         },
         nights: 2 // Mock value
       };
