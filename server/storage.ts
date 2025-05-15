@@ -1,10 +1,17 @@
+import { desc, eq, and, gte, lte, like, sql, or } from "drizzle-orm";
+import { db } from "./db";
 import { 
   type User, 
   type InsertUser, 
   type Hotel,
   type Destination, 
   type Blog,
-  type Booking
+  type Booking,
+  users,
+  hotels,
+  destinations,
+  blogs,
+  bookings,
 } from "@shared/schema";
 import { hotelData } from "./data/hotels";
 import { blogData } from "./data/blogs";
@@ -37,42 +44,28 @@ export interface IStorage {
   createBooking(booking: any): Promise<Booking>;
   getUserBookings(userId: number): Promise<Booking[]>;
   getLatestBooking(): Promise<Booking | undefined>;
+  
+  // Database initialization
+  initializeData(): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private hotels: Hotel[];
-  private destinations: Destination[];
-  private blogs: Blog[];
-  private bookings: Booking[];
-  private currentUserId: number;
-  private currentBookingId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.hotels = [...hotelData];
-    this.destinations = [...destinationData];
-    this.blogs = [...blogData];
-    this.bookings = [...bookingData];
-    this.currentUserId = 1;
-    this.currentBookingId = bookingData.length + 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id, isAdmin: false, createdAt: new Date() };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
@@ -82,63 +75,67 @@ export class MemStorage implements IStorage {
     filters: any = {}
   ): Promise<{ hotels: Hotel[], total: number, totalPages: number }> {
     const pageSize = 9;
-    let filteredHotels = [...this.hotels];
+    let conditions: any[] = [];
     
     // Apply filters
     if (filters.destination) {
-      filteredHotels = filteredHotels.filter(
-        hotel => hotel.city.toLowerCase().includes(filters.destination.toLowerCase()) || 
-                hotel.country.toLowerCase().includes(filters.destination.toLowerCase())
-      );
-    }
-    
-    if (filters.priceMin !== undefined && filters.priceMax !== undefined) {
-      filteredHotels = filteredHotels.filter(
-        hotel => Number(hotel.price) >= filters.priceMin && Number(hotel.price) <= filters.priceMax
-      );
-    }
-    
-    if (filters.starRating && filters.starRating.length > 0) {
-      filteredHotels = filteredHotels.filter(
-        hotel => filters.starRating.includes(hotel.rating)
-      );
-    }
-    
-    if (filters.hotelFacilities && filters.hotelFacilities.length > 0) {
-      filteredHotels = filteredHotels.filter(hotel => 
-        filters.hotelFacilities.some((facility: string) => 
-          hotel.amenities.includes(facility)
+      conditions.push(
+        or(
+          like(hotels.city, `%${filters.destination}%`),
+          like(hotels.country, `%${filters.destination}%`)
         )
       );
     }
     
-    // Calculate pagination
-    const total = filteredHotels.length;
+    if (filters.priceMin !== undefined && filters.priceMax !== undefined) {
+      conditions.push(
+        and(
+          gte(hotels.price, filters.priceMin),
+          lte(hotels.price, filters.priceMax)
+        )
+      );
+    }
+    
+    // Get total count for pagination
+    const countQuery = db.select({ count: sql<number>`count(*)` }).from(hotels);
+    if (conditions.length > 0) {
+      countQuery.where(and(...conditions));
+    }
+    const [countResult] = await countQuery;
+    const total = Number(countResult.count);
     const totalPages = Math.ceil(total / pageSize);
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedHotels = filteredHotels.slice(startIndex, endIndex);
+    
+    // Get hotels with pagination
+    const offset = (page - 1) * pageSize;
+    const hotelsQuery = db.select().from(hotels);
+    if (conditions.length > 0) {
+      hotelsQuery.where(and(...conditions));
+    }
+    const result = await hotelsQuery.limit(pageSize).offset(offset);
     
     return {
-      hotels: paginatedHotels,
+      hotels: result,
       total,
       totalPages,
     };
   }
 
   async getPopularHotels(): Promise<Hotel[]> {
-    return this.hotels
-      .sort((a, b) => (b.rating * b.reviewCount) - (a.rating * a.reviewCount))
-      .slice(0, 6);
+    return db
+      .select()
+      .from(hotels)
+      .orderBy(desc(hotels.rating))
+      .limit(6);
   }
 
   async getHotelById(id: number): Promise<Hotel | undefined> {
-    return this.hotels.find(hotel => hotel.id === id);
+    const [hotel] = await db.select().from(hotels).where(eq(hotels.id, id));
+    return hotel;
   }
 
   // Destination methods
   async getDestinations(): Promise<Destination[]> {
-    return this.destinations;
+    return db.select().from(destinations);
   }
 
   // Blog methods
@@ -147,54 +144,63 @@ export class MemStorage implements IStorage {
     category?: string
   ): Promise<{ blogs: Blog[], total: number, totalPages: number }> {
     const pageSize = 10;
-    let filteredBlogs = [...this.blogs];
+    const conditions = category ? [eq(blogs.category, category)] : [];
     
-    if (category) {
-      filteredBlogs = filteredBlogs.filter(blog => blog.category === category);
+    // Get total count
+    const countQuery = db.select({ count: sql<number>`count(*)` }).from(blogs);
+    if (conditions.length > 0) {
+      countQuery.where(and(...conditions));
     }
-    
-    // Sort by date (newest first)
-    filteredBlogs.sort((a, b) => {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-    
-    const total = filteredBlogs.length;
+    const [countResult] = await countQuery;
+    const total = Number(countResult.count);
     const totalPages = Math.ceil(total / pageSize);
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedBlogs = filteredBlogs.slice(startIndex, endIndex);
+    
+    // Get blogs with pagination
+    const offset = (page - 1) * pageSize;
+    const blogsQuery = db.select().from(blogs);
+    if (conditions.length > 0) {
+      blogsQuery.where(and(...conditions));
+    }
+    const result = await blogsQuery.orderBy(desc(blogs.date)).limit(pageSize).offset(offset);
     
     return {
-      blogs: paginatedBlogs,
+      blogs: result,
       total,
       totalPages,
     };
   }
 
   async getRecentBlogs(): Promise<Blog[]> {
-    return [...this.blogs]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 6);
+    return db
+      .select()
+      .from(blogs)
+      .orderBy(desc(blogs.date))
+      .limit(6);
   }
 
   async getBlogById(id: number): Promise<Blog | undefined> {
-    return this.blogs.find(blog => blog.id === id);
+    const [blog] = await db.select().from(blogs).where(eq(blogs.id, id));
+    return blog;
   }
 
   async getBlogCategories(): Promise<{ name: string, count: number }[]> {
-    const categories: Record<string, number> = {};
+    const result = await db
+      .select({
+        name: blogs.category,
+        count: sql<number>`count(*)`
+      })
+      .from(blogs)
+      .where(sql`${blogs.category} is not null`)
+      .groupBy(blogs.category);
     
-    this.blogs.forEach(blog => {
-      const category = blog.category || 'Uncategorized';
-      categories[category] = (categories[category] || 0) + 1;
-    });
-    
-    return Object.entries(categories).map(([name, count]) => ({ name, count }));
+    return result.map(item => ({
+      name: item.name || 'Uncategorized',
+      count: Number(item.count)
+    }));
   }
 
   // Booking methods
   async createBooking(bookingData: any): Promise<Booking> {
-    const id = this.currentBookingId++;
     const hotel = await this.getHotelById(bookingData.hotelId);
     
     if (!hotel) {
@@ -218,8 +224,7 @@ export class MemStorage implements IStorage {
       children: parseInt(bookingData.children) || 0
     };
     
-    const booking: Booking = {
-      id,
+    const bookingValues = {
       userId: bookingData.userId || null,
       hotelId: hotel.id,
       checkIn: bookingData.checkIn,
@@ -249,17 +254,63 @@ export class MemStorage implements IStorage {
       createdAt: new Date()
     };
     
-    this.bookings.unshift(booking); // Add to beginning of array
+    const [booking] = await db
+      .insert(bookings)
+      .values(bookingValues)
+      .returning();
+    
     return booking;
   }
 
   async getUserBookings(userId: number): Promise<Booking[]> {
-    return this.bookings.filter(booking => booking.userId === userId);
+    return db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.userId, userId));
   }
 
   async getLatestBooking(): Promise<Booking | undefined> {
-    return this.bookings[0];
+    const [booking] = await db
+      .select()
+      .from(bookings)
+      .orderBy(desc(bookings.createdAt))
+      .limit(1);
+    
+    return booking;
+  }
+  
+  // Database initialization
+  async initializeData(): Promise<void> {
+    // Check if data already exists
+    const [hotelResult] = await db.select({ count: sql<number>`count(*)` }).from(hotels);
+    const hotelCount = Number(hotelResult.count);
+    
+    if (hotelCount > 0) {
+      console.log('Database already has data, skipping initialization');
+      return;
+    }
+    
+    console.log('Initializing database with seed data...');
+    
+    // Insert hotels
+    console.log('Inserting hotels...');
+    await db.insert(hotels).values(hotelData);
+    
+    // Insert destinations
+    console.log('Inserting destinations...');
+    await db.insert(destinations).values(destinationData);
+    
+    // Insert blogs
+    console.log('Inserting blogs...');
+    await db.insert(blogs).values(blogData);
+    
+    // Insert bookings
+    console.log('Inserting bookings...');
+    await db.insert(bookings).values(bookingData);
+    
+    console.log('Database initialized with seed data');
   }
 }
 
-export const storage = new MemStorage();
+// Export a new instance of DatabaseStorage
+export const storage = new DatabaseStorage();

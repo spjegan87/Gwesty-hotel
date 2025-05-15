@@ -1,8 +1,17 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { log } from "./vite";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize database with seed data
+  try {
+    log("Initializing database with seed data...");
+    await storage.initializeData();
+    log("Database initialization complete");
+  } catch (error) {
+    log(`Error initializing database: ${error}`, "error");
+  }
   // Hotels endpoints
   app.get("/api/hotels", async (req, res) => {
     try {
