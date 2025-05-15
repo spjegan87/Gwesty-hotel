@@ -79,10 +79,11 @@ export class DatabaseStorage implements IStorage {
     
     // Apply filters
     if (filters.destination) {
+      // Filter by exact city name (case-insensitive)
       conditions.push(
         or(
-          like(hotels.city, `%${filters.destination}%`),
-          like(hotels.country, `%${filters.destination}%`)
+          sql`LOWER(${hotels.city}) = LOWER(${filters.destination})`,
+          sql`LOWER(${hotels.country}) = LOWER(${filters.destination})`
         )
       );
     }
