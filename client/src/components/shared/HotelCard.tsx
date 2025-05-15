@@ -64,10 +64,10 @@ export function HotelCard({
         <div>
           <span className="text-gray-500 text-sm">Per night</span>
           <div className="font-bold text-lg flex items-center">
-            ${discountedPrice}
+            ₹{Math.round(discountedPrice * 83.5)} {/* Converted to INR */}
             {discount && (
               <span className="ml-2 text-sm text-gray-500 line-through">
-                ${price}
+                ₹{Math.round(price * 83.5)}
               </span>
             )}
           </div>

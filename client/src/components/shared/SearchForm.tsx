@@ -1,19 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { CalendarIcon, Search } from "lucide-react";
 
 const formSchema = z.object({
-  destination: z.string().min(2, { message: "Destination is required" }),
+  destination: z.string().min(1, { message: "Destination is required" }),
   checkIn: z.date({ required_error: "Check-in date is required" }),
   checkOut: z.date({ required_error: "Check-out date is required" })
     .refine((date) => date > new Date(), { message: "Check-out date must be in the future" }),
@@ -30,6 +31,18 @@ interface SearchFormProps {
 export function SearchForm({ className = "", compact = false }: SearchFormProps) {
   const [, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Fetch destinations for dropdown
+  interface Destination {
+    id: number;
+    name: string;
+    image: string;
+    hotelCount: number;
+  }
+
+  const { data: destinations = [] } = useQuery<Destination[]>({
+    queryKey: ['/api/destinations'],
+  });
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -75,13 +88,23 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-gray-700 text-sm font-medium">Destination</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Where are you going?" 
-                      className="w-full" 
-                      {...field} 
-                    />
-                  </FormControl>
+                  <Select 
+                    value={field.value} 
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a destination" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Array.isArray(destinations) && destinations.map((destination) => (
+                        <SelectItem key={destination.id} value={destination.name}>
+                          {destination.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />
