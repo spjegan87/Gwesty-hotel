@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 export function Header() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn] = useState(false);
   const [notificationCount] = useState(2);
@@ -25,6 +25,13 @@ export function Header() {
     { label: "Shortcode", path: "#", dropdown: true },
     { label: "Extra", path: "#", dropdown: true },
   ];
+  
+  const handleNavigation = (path: string, e: React.MouseEvent) => {
+    if (path !== "#") {
+      e.preventDefault();
+      navigate(path);
+    }
+  };
 
   return (
     <header className="bg-secondary text-white">
@@ -108,6 +115,7 @@ export function Header() {
               <div key={item.label} className="py-2 md:py-0 relative group">
                 <Link 
                   href={item.path}
+                  onClick={(e) => handleNavigation(item.path, e)}
                   className={`flex items-center space-x-1 hover:text-primary ${
                     location === item.path ? "text-primary" : ""
                   }`}

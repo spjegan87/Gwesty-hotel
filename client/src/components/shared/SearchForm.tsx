@@ -52,7 +52,11 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
       params.append('adults', data.adults);
       
       // Redirect to hotel listing with search params
-      setLocation(`/hotels?${params.toString()}`);
+      const url = `/hotels?${params.toString()}`;
+      setLocation(url);
+      
+      // Force navigation with window.location as a fallback
+      window.location.href = url;
     } catch (error) {
       console.error('Search error:', error);
     } finally {

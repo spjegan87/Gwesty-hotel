@@ -6,6 +6,7 @@ import { BlogCard } from "@/components/shared/BlogCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, CreditCard, Search } from "lucide-react";
+import { Hotel, Blog, Destination } from "@shared/schema";
 
 export default function Home() {
   const { data: hotels, isLoading: isHotelsLoading } = useQuery({
@@ -138,7 +139,10 @@ export default function Home() {
           )}
           
           <div className="text-center mt-8">
-            <Link href="/hotels">
+            <Link href="/hotels" onClick={(e) => {
+              e.preventDefault();
+              window.location.href = "/hotels";
+            }}>
               <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
                 View All Hotels
               </Button>
