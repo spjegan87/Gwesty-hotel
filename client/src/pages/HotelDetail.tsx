@@ -337,7 +337,7 @@ export default function HotelDetail() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-4">
-                  <span className="text-2xl font-bold">${hotel.price}</span>
+                  <span className="text-2xl font-bold">₹{Math.round(hotel.price * 83.5)}</span>
                   <span className="text-gray-500 ml-2">per night</span>
                 </div>
 
@@ -497,26 +497,26 @@ export default function HotelDetail() {
                     {/* Price Breakdown */}
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <div className="flex justify-between mb-2">
-                        <span>${hotel.price} x {nights} nights</span>
-                        <span>${hotel.price * nights}</span>
+                        <span>₹{Math.round(hotel.price * 83.5)} x {nights} nights</span>
+                        <span>₹{Math.round(hotel.price * nights * 83.5)}</span>
                       </div>
                       {hotel.cleaningFee > 0 && (
                         <div className="flex justify-between mb-2">
                           <span>Cleaning fee</span>
-                          <span>${hotel.cleaningFee}</span>
+                          <span>₹{Math.round(hotel.cleaningFee * 83.5)}</span>
                         </div>
                       )}
                       {hotel.discount > 0 && (
                         <div className="flex justify-between mb-2 text-primary">
                           <span>Discount ({hotel.discount}%)</span>
-                          <span>-${(totalPrice * hotel.discount / 100).toFixed(2)}</span>
+                          <span>-₹{Math.round((totalPrice * hotel.discount / 100) * 83.5)}</span>
                         </div>
                       )}
                       <div className="border-t border-gray-300 my-2 pt-2 font-bold flex justify-between">
                         <span>Total</span>
-                        <span>${hotel.discount 
-                          ? (totalPrice - (totalPrice * hotel.discount / 100)).toFixed(2)
-                          : totalPrice.toFixed(2)}</span>
+                        <span>₹{hotel.discount 
+                          ? Math.round((totalPrice - (totalPrice * hotel.discount / 100)) * 83.5)
+                          : Math.round(totalPrice * 83.5)}</span>
                       </div>
                     </div>
                     
