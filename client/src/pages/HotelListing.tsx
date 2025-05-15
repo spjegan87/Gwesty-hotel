@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { HotelCard } from "@/components/shared/HotelCard";
@@ -8,8 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Pagination } from "@/components/ui/pagination";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "@/components/ui/pagination";
 import { SlidersHorizontal } from "lucide-react";
+import { Hotel } from "@shared/schema";
 
 export default function HotelListing() {
   const [location] = useLocation();
@@ -32,7 +40,13 @@ export default function HotelListing() {
   // Query for hotels with search params and filters
   const queryString = `/api/hotels?page=${page}&destination=${destination}&checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&priceMin=${filters.priceMin}&priceMax=${filters.priceMax}`;
   
-  const { data, isLoading } = useQuery({
+  interface HotelListingResponse {
+    hotels: Hotel[];
+    total: number;
+    totalPages: number;
+  }
+  
+  const { data, isLoading } = useQuery<HotelListingResponse>({
     queryKey: [queryString, filters.starRating, filters.hotelFacilities],
   });
   
@@ -237,8 +251,18 @@ export default function HotelListing() {
               </div>
             ) : hotels.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {hotels.map((hotel: any) => (
-                  <HotelCard key={hotel.id} {...hotel} />
+                {hotels.map((hotel) => (
+                  <HotelCard 
+                    key={hotel.id}
+                    id={hotel.id}
+                    name={hotel.name}
+                    location={hotel.location}
+                    price={Number(hotel.price)}
+                    discount={hotel.discount || undefined}
+                    rating={hotel.rating}
+                    image={Array.isArray(hotel.images) && hotel.images.length > 0 ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"}
+                    featured={hotel.featured || undefined}
+                  />
                 ))}
               </div>
             ) : (
@@ -252,30 +276,42 @@ export default function HotelListing() {
             {!isLoading && totalPages > 1 && (
               <div className="mt-8 flex justify-center">
                 <Pagination>
-                  <Pagination.Content>
-                    <Pagination.Item>
-                      <Pagination.PrevButton 
+                  <PaginationContent>
+                    <PaginationItem>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center gap-1"
                         disabled={page === 1}
                         onClick={() => setPage(p => Math.max(1, p - 1))}
-                      />
-                    </Pagination.Item>
+                      >
+                        <span className="sr-only">Go to previous page</span>
+                        <span className="h-4 w-4">←</span> Previous
+                      </Button>
+                    </PaginationItem>
                     {Array.from({ length: totalPages }).map((_, i) => (
-                      <Pagination.Item key={i}>
-                        <Pagination.Link 
+                      <PaginationItem key={i}>
+                        <PaginationLink 
                           isActive={page === i + 1}
                           onClick={() => setPage(i + 1)}
                         >
                           {i + 1}
-                        </Pagination.Link>
-                      </Pagination.Item>
+                        </PaginationLink>
+                      </PaginationItem>
                     ))}
-                    <Pagination.Item>
-                      <Pagination.NextButton 
+                    <PaginationItem>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center gap-1"
                         disabled={page === totalPages}
                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                      />
-                    </Pagination.Item>
-                  </Pagination.Content>
+                      >
+                        Next <span className="h-4 w-4">→</span>
+                        <span className="sr-only">Go to next page</span>
+                      </Button>
+                    </PaginationItem>
+                  </PaginationContent>
                 </Pagination>
               </div>
             )}

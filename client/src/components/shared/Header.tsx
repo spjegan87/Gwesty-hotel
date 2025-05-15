@@ -25,7 +25,7 @@ export function Header() {
     { label: "Shortcode", path: "#", dropdown: true },
     { label: "Extra", path: "#", dropdown: true },
   ];
-  
+
   const handleNavigation = (path: string, e: React.MouseEvent) => {
     if (path !== "#") {
       e.preventDefault();
@@ -34,7 +34,7 @@ export function Header() {
   };
 
   return (
-    <header className="bg-secondary text-white">
+    <header className="bg-neutral-800 text-white">
       <div className="container mx-auto px-4">
         {/* Top header */}
         <div className="flex justify-between items-center py-2 text-sm border-b border-gray-700">
@@ -66,7 +66,11 @@ export function Header() {
 
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <Button variant="ghost" className="p-0 h-auto" aria-label="Notifications">
+              <Button
+                variant="ghost"
+                className="p-0 h-auto"
+                aria-label="Notifications"
+              >
                 <Bell className="h-4 w-4" />
                 {notificationCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center bg-primary text-white text-[10px]">
@@ -75,7 +79,7 @@ export function Header() {
                 )}
               </Button>
             </div>
-            
+
             {isLoggedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center space-x-2">
@@ -96,8 +100,12 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Link href="/login" className="hover:text-gray-300">Login</Link>
-                <Link href="/register" className="hover:text-gray-300">Register</Link>
+                <Link href="/login" className="hover:text-gray-300">
+                  Login
+                </Link>
+                <Link href="/register" className="hover:text-gray-300">
+                  Register
+                </Link>
               </>
             )}
           </div>
@@ -110,10 +118,12 @@ export function Header() {
             <span className="text-white font-bold text-2xl">westy</span>
           </Link>
 
-          <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row absolute md:relative left-0 top-full md:top-auto z-50 w-full md:w-auto bg-secondary md:bg-transparent py-4 md:py-0 px-4 md:px-0 md:items-center md:space-x-6`}>
+          <div
+            className={`${mobileMenuOpen ? "flex" : "hidden"} md:flex flex-col md:flex-row absolute md:relative left-0 top-full md:top-auto z-50 w-full md:w-auto bg-secondary md:bg-transparent py-4 md:py-0 px-4 md:px-0 md:items-center md:space-x-6`}
+          >
             {navItems.map((item) => (
               <div key={item.label} className="py-2 md:py-0 relative group">
-                <Link 
+                <Link
                   href={item.path}
                   onClick={(e) => handleNavigation(item.path, e)}
                   className={`flex items-center space-x-1 hover:text-primary ${
@@ -131,9 +141,9 @@ export function Header() {
             <Button className="bg-primary hover:bg-primary/90 text-white">
               <Plus className="h-4 w-4 mr-1" /> Submit Hotel
             </Button>
-            <Button 
+            <Button
               variant="ghost"
-              className="md:hidden p-2" 
+              className="md:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
