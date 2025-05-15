@@ -9,7 +9,7 @@ export interface HotelCardProps {
   name: string;
   location: string;
   price: number;
-  discount?: number;
+  discount?: number | null;
   rating: number;
   image: string;
   featured?: boolean;

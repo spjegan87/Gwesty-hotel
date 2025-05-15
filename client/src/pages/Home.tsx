@@ -9,15 +9,15 @@ import { Check, CreditCard, Search } from "lucide-react";
 import { Hotel, Blog, Destination } from "@shared/schema";
 
 export default function Home() {
-  const { data: hotels, isLoading: isHotelsLoading } = useQuery({
+  const { data: hotels, isLoading: isHotelsLoading } = useQuery<Hotel[]>({
     queryKey: ["/api/hotels/popular"],
   });
 
-  const { data: destinations, isLoading: isDestinationsLoading } = useQuery({
+  const { data: destinations, isLoading: isDestinationsLoading } = useQuery<Destination[]>({
     queryKey: ["/api/destinations"],
   });
 
-  const { data: blogs, isLoading: isBlogsLoading } = useQuery({
+  const { data: blogs, isLoading: isBlogsLoading } = useQuery<Blog[]>({
     queryKey: ["/api/blogs/recent"],
   });
 
@@ -56,7 +56,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {destinations?.slice(0, 3).map((destination: any) => (
+              {destinations && destinations.length > 0 && destinations.slice(0, 3).map((destination) => (
                 <div key={destination.id} className="relative rounded-lg overflow-hidden shadow-lg h-64 group">
                   <img 
                     src={destination.image} 
@@ -132,8 +132,18 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {hotels?.slice(0, 3).map((hotel: any) => (
-                <HotelCard key={hotel.id} {...hotel} />
+              {hotels && hotels.length > 0 && hotels.slice(0, 3).map((hotel) => (
+                <HotelCard 
+                  key={hotel.id}
+                  id={hotel.id}
+                  name={hotel.name}
+                  location={hotel.location}
+                  price={Number(hotel.price)}
+                  discount={hotel.discount || undefined}
+                  rating={hotel.rating}
+                  image={Array.isArray(hotel.images) && hotel.images.length > 0 ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"}
+                  featured={hotel.featured || undefined}
+                />
               ))}
             </div>
           )}
@@ -210,7 +220,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {blogs?.slice(0, 3).map((blog: any) => (
+              {blogs && blogs.length > 0 && blogs.slice(0, 3).map((blog) => (
                 <BlogCard key={blog.id} {...blog} />
               ))}
             </div>
