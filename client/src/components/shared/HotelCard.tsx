@@ -72,7 +72,10 @@ export function HotelCard({
             )}
           </div>
         </div>
-        <Link href={`/hotels/${id}`}>
+        <Link href={`/hotels/${id}`} onClick={(e) => {
+          e.preventDefault();
+          window.location.href = `/hotels/${id}`;
+        }}>
           <Button className="bg-primary hover:bg-primary/90 text-white">
             Book Now
           </Button>

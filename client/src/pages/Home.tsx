@@ -132,19 +132,27 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {hotels && hotels.length > 0 && hotels.slice(0, 3).map((hotel) => (
-                <HotelCard 
-                  key={hotel.id}
-                  id={hotel.id}
-                  name={hotel.name}
-                  location={hotel.location}
-                  price={Number(hotel.price)}
-                  discount={hotel.discount || undefined}
-                  rating={hotel.rating}
-                  image={Array.isArray(hotel.images) && hotel.images.length > 0 ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"}
-                  featured={hotel.featured || undefined}
-                />
-              ))}
+              {hotels && hotels.length > 0 && hotels.slice(0, 3).map((hotel) => {
+                // Extract the first image from the images array
+                const hotelImages = hotel.images as string[];
+                const firstImage = hotelImages && hotelImages.length > 0 
+                  ? hotelImages[0] 
+                  : "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+                
+                return (
+                  <HotelCard 
+                    key={hotel.id}
+                    id={hotel.id}
+                    name={hotel.name}
+                    location={hotel.location}
+                    price={Number(hotel.price)}
+                    discount={hotel.discount || undefined}
+                    rating={hotel.rating}
+                    image={firstImage}
+                    featured={hotel.featured || undefined}
+                  />
+                );
+              })}
             </div>
           )}
           

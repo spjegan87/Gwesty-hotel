@@ -28,7 +28,14 @@ export function BlogCard({ id, title, excerpt, date, author, image }: BlogCardPr
         <p className="text-gray-600 mb-4 line-clamp-2">{excerpt}</p>
       </CardContent>
       <CardFooter className="px-4 pb-4 pt-0">
-        <Link href={`/blog/${id}`} className="text-primary hover:underline font-medium">
+        <Link 
+          href={`/blog/${id}`} 
+          className="text-primary hover:underline font-medium"
+          onClick={(e) => {
+            e.preventDefault();
+            window.location.href = `/blog/${id}`;
+          }}
+        >
           Read More
         </Link>
       </CardFooter>
