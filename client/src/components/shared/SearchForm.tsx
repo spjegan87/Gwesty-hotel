@@ -88,23 +88,20 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-gray-700 text-sm font-medium">Destination</FormLabel>
-                  <Select 
-                    value={field.value} 
-                    onValueChange={field.onChange}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a destination" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Array.isArray(destinations) && destinations.map((destination) => (
-                        <SelectItem key={destination.id} value={destination.name}>
-                          {destination.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      maxLength={3}
+                      placeholder="Enter 3-letter code (e.g. NYC)"
+                      className="uppercase"
+                      onChange={(e) => {
+                        const value = e.target.value.toUpperCase();
+                        if (value.length <= 3 && /^[A-Z]*$/.test(value)) {
+                          field.onChange(value);
+                        }
+                      }}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
