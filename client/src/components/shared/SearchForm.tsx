@@ -85,9 +85,11 @@ export function SearchForm({
       params.append("checkIn", format(data.checkIn, "yyyy-MM-dd"));
       params.append("checkOut", format(data.checkOut, "yyyy-MM-dd"));
       params.append("adults", data.adults);
+      params.append("page", "1"); // Reset to first page on new search
 
       // Redirect to hotel listing with search params
-      setLocation(`/hotels?${params.toString()}`);
+      const searchUrl = `/hotels?${params.toString()}`;
+      setLocation(searchUrl);
     } catch (error) {
       console.error("Search error:", error);
     } finally {
