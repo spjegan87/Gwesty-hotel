@@ -16,8 +16,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/hotels", async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
+      const destination = req.query.destination as string;
       const filters = {
-        destination: req.query.destination,
+        destination: destination ? destination.toLowerCase() : undefined,
         priceMin: req.query.priceMin ? parseInt(req.query.priceMin as string) : undefined,
         priceMax: req.query.priceMax ? parseInt(req.query.priceMax as string) : undefined,
         starRating: req.query.starRating ? (req.query.starRating as string).split(',').map(Number) : undefined,

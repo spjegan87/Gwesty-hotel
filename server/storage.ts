@@ -25,26 +25,26 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Hotel methods
   getHotels(page: number, filters?: any): Promise<{ hotels: Hotel[], total: number, totalPages: number }>;
   getPopularHotels(): Promise<Hotel[]>;
   getHotelById(id: number): Promise<Hotel | undefined>;
-  
+
   // Destination methods
   getDestinations(): Promise<Destination[]>;
-  
+
   // Blog methods
   getBlogs(page: number, category?: string): Promise<{ blogs: Blog[], total: number, totalPages: number }>;
   getRecentBlogs(): Promise<Blog[]>;
   getBlogById(id: number): Promise<Blog | undefined>;
   getBlogCategories(): Promise<{ name: string, count: number }[]>;
-  
+
   // Booking methods
   createBooking(booking: any): Promise<Booking>;
   getUserBookings(userId: number): Promise<Booking[]>;
   getLatestBooking(): Promise<Booking | undefined>;
-  
+
   // Database initialization
   initializeData(): Promise<void>;
 }
@@ -76,7 +76,7 @@ export class DatabaseStorage implements IStorage {
   ): Promise<{ hotels: Hotel[], total: number, totalPages: number }> {
     const pageSize = 9;
     let conditions: any[] = [];
-    
+
     // Apply filters
     if (filters.destination) {
       // Filter by exact city name (case-insensitive)
@@ -87,7 +87,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
     }
-    
+
     if (filters.priceMin !== undefined && filters.priceMax !== undefined) {
       conditions.push(
         and(
@@ -96,7 +96,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
     }
-    
+
     // Get total count for pagination
     const countQuery = db.select({ count: sql<number>`count(*)` }).from(hotels);
     if (conditions.length > 0) {
@@ -105,7 +105,7 @@ export class DatabaseStorage implements IStorage {
     const [countResult] = await countQuery;
     const total = Number(countResult.count);
     const totalPages = Math.ceil(total / pageSize);
-    
+
     // Get hotels with pagination
     const offset = (page - 1) * pageSize;
     const hotelsQuery = db.select().from(hotels);
@@ -113,7 +113,7 @@ export class DatabaseStorage implements IStorage {
       hotelsQuery.where(and(...conditions));
     }
     const result = await hotelsQuery.limit(pageSize).offset(offset);
-    
+
     return {
       hotels: result,
       total,
@@ -146,7 +146,7 @@ export class DatabaseStorage implements IStorage {
   ): Promise<{ blogs: Blog[], total: number, totalPages: number }> {
     const pageSize = 10;
     const conditions = category ? [eq(blogs.category, category)] : [];
-    
+
     // Get total count
     const countQuery = db.select({ count: sql<number>`count(*)` }).from(blogs);
     if (conditions.length > 0) {
@@ -155,7 +155,7 @@ export class DatabaseStorage implements IStorage {
     const [countResult] = await countQuery;
     const total = Number(countResult.count);
     const totalPages = Math.ceil(total / pageSize);
-    
+
     // Get blogs with pagination
     const offset = (page - 1) * pageSize;
     const blogsQuery = db.select().from(blogs);
@@ -163,7 +163,7 @@ export class DatabaseStorage implements IStorage {
       blogsQuery.where(and(...conditions));
     }
     const result = await blogsQuery.orderBy(desc(blogs.date)).limit(pageSize).offset(offset);
-    
+
     return {
       blogs: result,
       total,
@@ -193,7 +193,7 @@ export class DatabaseStorage implements IStorage {
       .from(blogs)
       .where(sql`${blogs.category} is not null`)
       .groupBy(blogs.category);
-    
+
     return result.map(item => ({
       name: item.name || 'Uncategorized',
       count: Number(item.count)
@@ -203,28 +203,28 @@ export class DatabaseStorage implements IStorage {
   // Booking methods
   async createBooking(bookingData: any): Promise<Booking> {
     const hotel = await this.getHotelById(bookingData.hotelId);
-    
+
     if (!hotel) {
       throw new Error('Hotel not found');
     }
-    
+
     // Calculate nights and total amount
     const checkIn = new Date(bookingData.checkIn);
     const checkOut = new Date(bookingData.checkOut);
     const nights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     const roomRate = Number(hotel.price) * nights;
     const tax = roomRate * 0.1; // 10% tax
     const discount = hotel.discount ? (roomRate * Number(hotel.discount) / 100) : 0;
     const paidEarlier = 100; // Mock value
     const totalAmount = roomRate + tax - discount;
-    
+
     // Create guests object
     const guests = {
       adults: parseInt(bookingData.adults) || 1,
       children: parseInt(bookingData.children) || 0
     };
-    
+
     const bookingValues = {
       userId: bookingData.userId || null,
       hotelId: hotel.id,
@@ -254,12 +254,12 @@ export class DatabaseStorage implements IStorage {
       bookingDate: new Date().toISOString().split('T')[0],
       createdAt: new Date()
     };
-    
+
     const [booking] = await db
       .insert(bookings)
       .values(bookingValues)
       .returning();
-    
+
     return booking;
   }
 
@@ -276,39 +276,39 @@ export class DatabaseStorage implements IStorage {
       .from(bookings)
       .orderBy(desc(bookings.createdAt))
       .limit(1);
-    
+
     return booking;
   }
-  
+
   // Database initialization
   async initializeData(): Promise<void> {
     // Check if data already exists
     const [hotelResult] = await db.select({ count: sql<number>`count(*)` }).from(hotels);
     const hotelCount = Number(hotelResult.count);
-    
+
     if (hotelCount > 0) {
       console.log('Database already has data, skipping initialization');
       return;
     }
-    
+
     console.log('Initializing database with seed data...');
-    
+
     // Insert hotels
     console.log('Inserting hotels...');
     await db.insert(hotels).values(hotelData);
-    
+
     // Insert destinations
     console.log('Inserting destinations...');
     await db.insert(destinations).values(destinationData);
-    
+
     // Insert blogs
     console.log('Inserting blogs...');
     await db.insert(blogs).values(blogData);
-    
+
     // Insert bookings
     console.log('Inserting bookings...');
     await db.insert(bookings).values(bookingData);
-    
+
     console.log('Database initialized with seed data');
   }
 }
