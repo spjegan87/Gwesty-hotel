@@ -17,8 +17,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const destination = req.query.destination as string;
+      const checkIn = req.query.checkIn as string;
+      const checkOut = req.query.checkOut as string;
+      const adults = parseInt(req.query.adults as string) || 1;
+      
       const filters = {
         destination: destination ? destination.toLowerCase() : undefined,
+        checkIn: checkIn || undefined,
+        checkOut: checkOut || undefined,
+        adults: adults,
         priceMin: req.query.priceMin ? parseInt(req.query.priceMin as string) : undefined,
         priceMax: req.query.priceMax ? parseInt(req.query.priceMax as string) : undefined,
         starRating: req.query.starRating ? (req.query.starRating as string).split(',').map(Number) : undefined,

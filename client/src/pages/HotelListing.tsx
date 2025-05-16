@@ -38,8 +38,29 @@ export default function HotelListing() {
   const checkOut = params.get("checkOut") || "";
   const adults = params.get("adults") || "1";
 
+  // Construct search params for API query
+  const searchParams = new URLSearchParams({
+    page: page.toString(),
+    destination: destination,
+    checkIn: checkIn,
+    checkOut: checkOut,
+    adults: adults,
+    priceMin: filters.priceMin.toString(),
+    priceMax: filters.priceMax.toString()
+  });
+
+  // Add star rating filters if any
+  if (filters.starRating.length > 0) {
+    searchParams.append('starRating', filters.starRating.join(','));
+  }
+
+  // Add facilities filters if any
+  if (filters.hotelFacilities.length > 0) {
+    searchParams.append('hotelFacilities', filters.hotelFacilities.join(','));
+  }
+
   // Query for hotels with search params and filters
-  const queryString = `/api/hotels?page=${page}&destination=${destination}&checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&priceMin=${filters.priceMin}&priceMax=${filters.priceMax}`;
+  const queryString = `/api/hotels?${searchParams.toString()}`;
   
   interface HotelListingResponse {
     hotels: Hotel[];
