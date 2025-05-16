@@ -6,18 +6,37 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { CalendarIcon, Search } from "lucide-react";
 
 const formSchema = z.object({
   destination: z.string().min(1, { message: "Destination is required" }),
   checkIn: z.date({ required_error: "Check-in date is required" }),
-  checkOut: z.date({ required_error: "Check-out date is required" })
-    .refine((date) => date > new Date(), { message: "Check-out date must be in the future" }),
+  checkOut: z
+    .date({ required_error: "Check-out date is required" })
+    .refine((date) => date > new Date(), {
+      message: "Check-out date must be in the future",
+    }),
   adults: z.string(),
 });
 
@@ -28,10 +47,13 @@ interface SearchFormProps {
   compact?: boolean;
 }
 
-export function SearchForm({ className = "", compact = false }: SearchFormProps) {
+export function SearchForm({
+  className = "",
+  compact = false,
+}: SearchFormProps) {
   const [, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Fetch destinations for dropdown
   interface Destination {
     id: number;
@@ -41,9 +63,9 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
   }
 
   const { data: destinations = [] } = useQuery<Destination[]>({
-    queryKey: ['/api/destinations'],
+    queryKey: ["/api/destinations"],
   });
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,19 +81,19 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
     try {
       // Build query params
       const params = new URLSearchParams();
-      params.append('destination', data.destination);
-      params.append('checkIn', format(data.checkIn, 'yyyy-MM-dd'));
-      params.append('checkOut', format(data.checkOut, 'yyyy-MM-dd'));
-      params.append('adults', data.adults);
-      
+      params.append("destination", data.destination);
+      params.append("checkIn", format(data.checkIn, "yyyy-MM-dd"));
+      params.append("checkOut", format(data.checkOut, "yyyy-MM-dd"));
+      params.append("adults", data.adults);
+
       // Redirect to hotel listing with search params
       const url = `/hotels?${params.toString()}`;
       setLocation(url);
-      
+
       // Force navigation with window.location as a fallback
       window.location.href = url;
     } catch (error) {
-      console.error('Search error:', error);
+      console.error("Search error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -80,24 +102,41 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
   return (
     <div className={`bg-white rounded-lg shadow-lg p-4 ${className}`}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className={`grid grid-cols-1 ${compact ? "md:grid-cols-2" : "md:grid-cols-3"} gap-4`}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className={`grid grid-cols-1 ${compact ? "md:grid-cols-2" : "md:grid-cols-3"} gap-4`}
+        >
           <div className="relative">
             <FormField
               control={form.control}
               name="destination"
               render={({ field }) => {
                 const indianCities = [
-                  "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata",
-                  "Hyderabad", "Pune", "Jaipur", "Goa", "Kochi",
-                  "Agra", "Varanasi", "Udaipur", "Shimla", "Manali"
+                  "Mumbai",
+                  "Delhi",
+                  "Bangalore",
+                  "Chennai",
+                  "Kolkata",
+                  "Hyderabad",
+                  "Pune",
+                  "Jaipur",
+                  "Goa",
+                  "Kochi",
+                  "Agra",
+                  "Varanasi",
+                  "Udaipur",
+                  "Shimla",
+                  "Manali",
                 ];
-                const filteredCities = indianCities.filter(city =>
-                  city.toLowerCase().includes(field.value.toLowerCase())
+                const filteredCities = indianCities.filter((city) =>
+                  city.toLowerCase().includes(field.value.toLowerCase()),
                 );
 
                 return (
                   <FormItem className="relative">
-                    <FormLabel className="text-gray-900 text-sm font-medium">Destination</FormLabel>
+                    <FormLabel className="text-gray-900 text-sm font-medium">
+                      Destination
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -109,7 +148,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
                       />
                     </FormControl>
                     {field.value && filteredCities.length > 0 && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+                      <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg text-gray-900 text-left">
                         {filteredCities.map((city) => (
                           <div
                             key={city}
@@ -126,20 +165,22 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               }}
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="checkIn"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">Check In</FormLabel>
+                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">
+                    Check In
+                  </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant="outline"
-                          className="w-full flex justify-start text-left font-normal"
+                          className="w-full flex justify-start text-left font-normal text-gray-900"
                         >
                           {field.value ? (
                             format(field.value, "MMM dd, yyyy")
@@ -162,19 +203,21 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="checkOut"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">Check Out</FormLabel>
+                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">
+                    Check Out
+                  </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant="outline"
-                          className="w-full flex justify-start text-left font-normal"
+                          className="w-full flex justify-start text-left font-normal text-gray-900"
                         >
                           {field.value ? (
                             format(field.value, "MMM dd, yyyy")
@@ -205,8 +248,10 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               name="adults"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">Guests</FormLabel>
-                  <div className="flex space-x-4">
+                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">
+                    Guests
+                  </FormLabel>
+                  <div className="flex space-x-4 text-gray-900">
                     <FormControl>
                       <Select
                         value={field.value}
@@ -223,8 +268,8 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       className="bg-primary hover:bg-primary/90 text-white"
                       disabled={isSubmitting}
                     >
