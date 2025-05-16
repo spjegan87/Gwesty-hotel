@@ -25,6 +25,7 @@ export function HotelCard({
   rating,
   image,
   featured,
+  viewMode = 'grid',
 }: HotelCardProps) {
   const discountedPrice = discount ? price - (price * discount) / 100 : price;
 
