@@ -31,7 +31,7 @@ interface SearchFormProps {
 export function SearchForm({ className = "", compact = false }: SearchFormProps) {
   const [, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   // Fetch destinations for dropdown
   interface Destination {
     id: number;
@@ -43,7 +43,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
   const { data: destinations = [] } = useQuery<Destination[]>({
     queryKey: ['/api/destinations'],
   });
-
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,11 +63,11 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
       params.append('checkIn', format(data.checkIn, 'yyyy-MM-dd'));
       params.append('checkOut', format(data.checkOut, 'yyyy-MM-dd'));
       params.append('adults', data.adults);
-
+      
       // Redirect to hotel listing with search params
       const url = `/hotels?${params.toString()}`;
       setLocation(url);
-
+      
       // Force navigation with window.location as a fallback
       window.location.href = url;
     } catch (error) {
@@ -106,7 +106,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               )}
             />
           </div>
-
+          
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -119,7 +119,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
                       <FormControl>
                         <Button
                           variant="outline"
-                          className="w-full flex justify-start text-left font-normal bg-gray-100"
+                          className="w-full flex justify-start text-left font-normal"
                         >
                           {field.value ? (
                             format(field.value, "MMM dd, yyyy")
@@ -142,7 +142,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
                 </FormItem>
               )}
             />
-
+            
             <FormField
               control={form.control}
               name="checkOut"
@@ -154,7 +154,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
                       <FormControl>
                         <Button
                           variant="outline"
-                          className="w-full flex justify-start text-left font-normal bg-gray-100"
+                          className="w-full flex justify-start text-left font-normal"
                         >
                           {field.value ? (
                             format(field.value, "MMM dd, yyyy")
