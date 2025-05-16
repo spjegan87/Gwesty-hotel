@@ -133,7 +133,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               name="checkIn"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-900 text-sm font-medium">Check In</FormLabel>
+                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">Check In</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -168,7 +168,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               name="checkOut"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-900 text-sm font-medium">Check Out</FormLabel>
+                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">Check Out</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -205,7 +205,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               name="adults"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-900 text-sm font-medium">Guests</FormLabel>
+                  <FormLabel className="text-gray-900 dark:text-white text-sm font-medium">Guests</FormLabel>
                   <div className="flex space-x-4">
                     <FormControl>
                       <Select
