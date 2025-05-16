@@ -54,18 +54,78 @@ A modern hotel booking platform built with React, TypeScript, and Express.js tha
 - **Type Checking**: TypeScript
 - **Form Handling**: React Hook Form with Zod validation
 
+## Product Architecture
+
+### Overview
+Gwesty follows a modern client-server architecture with a clear separation of concerns:
+
+```
+┌─────────────────┐     ┌──────────────┐     ┌─────────────┐
+│   React Client  │ <── │  Express API │ <── │  PostgreSQL │
+│   (Frontend)    │     │  (Backend)   │     │  (Database) │
+└─────────────────┘     └──────────────┘     └─────────────┘
+```
+
+### Architecture Layers
+
+1. **Presentation Layer (React)**
+   - Components-based UI architecture
+   - Client-side routing with Wouter
+   - State management with React Query
+   - Form handling with React Hook Form
+   - Type safety with TypeScript
+
+2. **Application Layer (Express)**
+   - RESTful API endpoints
+   - Request validation
+   - Business logic handling
+   - Data transformation
+   - Error handling
+
+3. **Data Layer (PostgreSQL + Drizzle)**
+   - Data persistence
+   - Schema management
+   - Data relationships
+   - Query optimization
+
+### Key Features Implementation
+
+```
+├── Authentication Flow
+│   ├── Session-based auth
+│   └── Protected routes
+│
+├── Hotel Management
+│   ├── Search & filtering
+│   ├── Booking system
+│   └── Review system
+│
+├── Content Management
+│   ├── Blog system
+│   ├── Destination guides
+│   └── Media handling
+│
+└── User Features
+    ├── Profile management
+    ├── Booking history
+    └── Notifications
+```
+
 ## Project Structure
 
 ```
 ├── client/           # React frontend application
 │   ├── components/   # Reusable UI components
-│   ├── pages/        # Page components
-│   ├── hooks/        # Custom React hooks
-│   └── lib/          # Utility functions and configurations
-├── server/           # Express backend server
-│   ├── data/         # Sample data and seeds
-│   └── routes/       # API route handlers
-└── shared/           # Shared TypeScript types
+│   │   ├── shared/  # Common components
+│   │   └── ui/      # UI component library
+│   ├── pages/       # Route components
+│   ├── hooks/       # Custom React hooks
+│   └── lib/         # Utilities and config
+├── server/          # Express backend server
+│   ├── data/        # Seed data
+│   ├── routes/      # API endpoints
+│   └── db/          # Database operations
+└── shared/          # Shared types and schemas
 ```
 
 ## Development Workflow
