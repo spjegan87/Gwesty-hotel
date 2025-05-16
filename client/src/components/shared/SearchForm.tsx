@@ -128,9 +128,29 @@ export function SearchForm({
                   "Shimla",
                   "Manali",
                 ];
-                const filteredCities = indianCities.filter((city) =>
-                  city.toLowerCase().includes(field.value.toLowerCase()),
-                );
+                const [hotels, setHotels] = useState<any[]>([]);
+
+                useEffect(() => {
+                  const fetchHotels = async () => {
+                    if (field.value) {
+                      try {
+                        const response = await fetch(`/api/hotels?destination=${field.value}`);
+                        const data = await response.json();
+                        setHotels(data.hotels || []);
+                      } catch (error) {
+                        console.error("Error fetching hotels:", error);
+                      }
+                    } else {
+                      setHotels([]);
+                    }
+                  };
+
+                  const debounce = setTimeout(() => {
+                    fetchHotels();
+                  }, 300);
+
+                  return () => clearTimeout(debounce);
+                }, [field.value]);
 
                 return (
                   <FormItem className="relative">
@@ -140,22 +160,23 @@ export function SearchForm({
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="Enter city name"
+                        placeholder="Enter destination"
                         className="text-gray-900"
                         onChange={(e) => {
                           field.onChange(e.target.value);
                         }}
                       />
                     </FormControl>
-                    {field.value && filteredCities.length > 0 && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg text-gray-900 text-left">
-                        {filteredCities.map((city) => (
+                    {field.value && hotels.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg text-gray-900 text-left max-h-60 overflow-y-auto">
+                        {hotels.map((hotel) => (
                           <div
-                            key={city}
+                            key={hotel.id}
                             className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                            onClick={() => field.onChange(city)}
+                            onClick={() => field.onChange(hotel.city)}
                           >
-                            {city}
+                            <div className="font-medium">{hotel.name}</div>
+                            <div className="text-sm text-gray-600">{hotel.city}, {hotel.country}</div>
                           </div>
                         ))}
                       </div>
