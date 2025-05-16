@@ -85,25 +85,45 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
             <FormField
               control={form.control}
               name="destination"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-gray-700 text-sm font-medium">Destination</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      maxLength={3}
-                      placeholder="Enter 3-letter code (e.g. NYC)"
-                      className="uppercase"
-                      onChange={(e) => {
-                        const value = e.target.value.toUpperCase();
-                        if (value.length <= 3 && /^[A-Z]*$/.test(value)) {
-                          field.onChange(value);
-                        }
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const indianCities = [
+                  "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata",
+                  "Hyderabad", "Pune", "Jaipur", "Goa", "Kochi",
+                  "Agra", "Varanasi", "Udaipur", "Shimla", "Manali"
+                ];
+                const filteredCities = indianCities.filter(city =>
+                  city.toLowerCase().includes(field.value.toLowerCase())
+                );
+
+                return (
+                  <FormItem className="relative">
+                    <FormLabel className="text-gray-900 text-sm font-medium">Destination</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter city name"
+                        className="text-gray-900"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                    {field.value && filteredCities.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+                        {filteredCities.map((city) => (
+                          <div
+                            key={city}
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            onClick={() => field.onChange(city)}
+                          >
+                            {city}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </FormItem>
+                );
+              }}
             />
           </div>
           
@@ -113,7 +133,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               name="checkIn"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 text-sm font-medium">Check In</FormLabel>
+                  <FormLabel className="text-gray-900 text-sm font-medium">Check In</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -148,7 +168,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               name="checkOut"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 text-sm font-medium">Check Out</FormLabel>
+                  <FormLabel className="text-gray-900 text-sm font-medium">Check Out</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -185,7 +205,7 @@ export function SearchForm({ className = "", compact = false }: SearchFormProps)
               name="adults"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 text-sm font-medium">Guests</FormLabel>
+                  <FormLabel className="text-gray-900 text-sm font-medium">Guests</FormLabel>
                   <div className="flex space-x-4">
                     <FormControl>
                       <Select
