@@ -87,11 +87,7 @@ export function SearchForm({
       params.append("adults", data.adults);
 
       // Redirect to hotel listing with search params
-      const url = `/hotels?${params.toString()}`;
-      setLocation(url);
-
-      // Force navigation with window.location as a fallback
-      window.location.href = url;
+      setLocation(`/hotels?${params.toString()}`);
     } catch (error) {
       console.error("Search error:", error);
     } finally {
