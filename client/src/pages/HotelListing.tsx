@@ -23,6 +23,7 @@ export default function HotelListing() {
   const [location] = useLocation();
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState({
     priceMin: 0,
     priceMax: 1000,
@@ -223,10 +224,18 @@ export default function HotelListing() {
                 )}
               </p>
               <div className="flex space-x-2">
-                <Button variant="outline" size="icon">
+                <Button 
+                  variant={viewMode === 'grid' ? 'default' : 'outline'} 
+                  size="icon"
+                  onClick={() => setViewMode('grid')}
+                >
                   <i className="fas fa-th"></i>
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button 
+                  variant={viewMode === 'list' ? 'default' : 'outline'} 
+                  size="icon"
+                  onClick={() => setViewMode('list')}
+                >
                   <i className="fas fa-list"></i>
                 </Button>
               </div>
@@ -250,7 +259,7 @@ export default function HotelListing() {
                 ))}
               </div>
             ) : hotels.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-3 gap-6' : 'flex flex-col gap-4'}`}>
                 {hotels.map((hotel) => (
                   <HotelCard 
                     key={hotel.id}
@@ -262,6 +271,7 @@ export default function HotelListing() {
                     rating={hotel.rating}
                     image={Array.isArray(hotel.images) && hotel.images.length > 0 ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"}
                     featured={hotel.featured || undefined}
+                    viewMode={viewMode}
                   />
                 ))}
               </div>

@@ -13,6 +13,7 @@ export interface HotelCardProps {
   rating: number;
   image: string;
   featured?: boolean;
+  viewMode?: 'grid' | 'list';
 }
 
 export function HotelCard({
@@ -28,12 +29,12 @@ export function HotelCard({
   const discountedPrice = discount ? price - (price * discount) / 100 : price;
 
   return (
-    <Card className="hotel-card overflow-hidden shadow-md hover:shadow-xl">
-      <div className="relative">
+    <Card className={`hotel-card overflow-hidden shadow-md hover:shadow-xl ${viewMode === 'list' ? 'flex' : ''}`}>
+      <div className={`relative ${viewMode === 'list' ? 'w-72' : ''}`}>
         <img
           src={image}
           alt={name}
-          className="w-full h-48 object-cover"
+          className={`${viewMode === 'list' ? 'w-72 h-full' : 'w-full h-48'} object-cover`}
         />
         {featured && (
           <Badge className="absolute top-4 left-4 bg-white text-secondary">
