@@ -111,23 +111,6 @@ export function SearchForm({
               control={form.control}
               name="destination"
               render={({ field }) => {
-                const indianCities = [
-                  "Mumbai",
-                  "Delhi",
-                  "Bangalore",
-                  "Chennai",
-                  "Kolkata",
-                  "Hyderabad",
-                  "Pune",
-                  "Jaipur",
-                  "Goa",
-                  "Kochi",
-                  "Agra",
-                  "Varanasi",
-                  "Udaipur",
-                  "Shimla",
-                  "Manali",
-                ];
                 const [hotels, setHotels] = useState<any[]>([]);
 
                 useEffect(() => {
@@ -160,7 +143,7 @@ export function SearchForm({
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="Enter destination"
+                        placeholder="Enter city name"
                         className="text-gray-900"
                         onChange={(e) => {
                           field.onChange(e.target.value);
@@ -172,11 +155,21 @@ export function SearchForm({
                         {hotels.map((hotel) => (
                           <div
                             key={hotel.id}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            className="px-4 py-3 cursor-pointer hover:bg-gray-100 border-b last:border-b-0"
                             onClick={() => field.onChange(hotel.city)}
                           >
-                            <div className="font-medium">{hotel.name}</div>
-                            <div className="text-sm text-gray-600">{hotel.city}, {hotel.country}</div>
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={hotel.images[0]} 
+                                alt={hotel.name}
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                              <div>
+                                <div className="font-medium">{hotel.name}</div>
+                                <div className="text-sm text-gray-600">{hotel.city}, {hotel.country}</div>
+                                <div className="text-sm text-primary">From ${hotel.price}/night</div>
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
