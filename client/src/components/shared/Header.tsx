@@ -16,6 +16,20 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn] = useState(false);
   const [notificationCount] = useState(2);
+  const [notifications] = useState([
+    {
+      id: 1,
+      title: "Booking Confirmed",
+      message: "Your booking at Fairmont Hotel has been confirmed",
+      time: "2 hours ago"
+    },
+    {
+      id: 2,
+      title: "Special Offer",
+      message: "Get 20% off on your next booking",
+      time: "1 day ago"
+    }
+  ]);
 
   const navItems = [
     { label: "Home", path: "/", dropdown: true },
@@ -65,20 +79,36 @@ export function Header() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Button
-                variant="ghost"
-                className="p-0 h-auto"
-                aria-label="Notifications"
-              >
-                <Bell className="h-4 w-4" />
-                {notificationCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center bg-primary text-white text-[10px]">
-                    {notificationCount}
-                  </Badge>
-                )}
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="p-0 h-auto relative"
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-4 w-4" />
+                  {notificationCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center bg-primary text-white text-[10px]">
+                      {notificationCount}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-80">
+                <div className="p-2">
+                  <h3 className="font-semibold mb-2">Notifications</h3>
+                  <div className="space-y-2">
+                    {notifications.map((notification) => (
+                      <div key={notification.id} className="flex flex-col p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <span className="font-medium text-sm">{notification.title}</span>
+                        <span className="text-sm text-gray-600">{notification.message}</span>
+                        <span className="text-xs text-gray-400 mt-1">{notification.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {isLoggedIn ? (
               <DropdownMenu>
